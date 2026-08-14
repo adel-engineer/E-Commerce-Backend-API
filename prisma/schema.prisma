@@ -43,3 +43,15 @@ model Brand{
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
 }
+
+model Category{
+  id String @id @default(uuid())
+  parentId String?
+  parent Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryHierarchy") 
+  name String @unique
+  description String? 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
