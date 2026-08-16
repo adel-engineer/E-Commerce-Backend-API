@@ -1,4 +1,4 @@
-/ This is your Prisma schema file,
+// This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 // Get a free hosted Postgres database in seconds: `npx create-db`
@@ -15,6 +15,10 @@ datasource db {
 enum Role {
   CUSTOMER
   ADMIN
+}
+
+enum AttributeInputType {
+   color
 }
 
 
@@ -80,11 +84,21 @@ model ProductVariant {
   id String @id @default(uuid())
   productId String
   product Product @relation(fields: [productId], references: [id])
-  sku String``
+  sku String
   price Float
   stock Int
   currencyCode String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
+}
+
+model Attribute{
+  id String @id @default(uuid())
+  name String @unique
+  inputType AttributeInputType
+//attributeValues AttributeValue[]
+//categoryAttributes CategoryAttribute[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
