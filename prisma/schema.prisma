@@ -209,3 +209,21 @@ model Review {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+
+model Coupon {
+  id String @id @default(uuid())
+  code String
+  type String
+  value Int
+  maximumDiscount Int?
+  minimumOrderAmount Int
+  usageLimit Int
+  usageLimitPerUser Int
+  startsAt String
+  expiresAt String
+  isActive Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
