@@ -25,7 +25,8 @@ enum AttributeInputType {
 model User{
   id String @id @default(uuid())
   wishlists Wishlist[]
-  Address Address[]
+  address Address[]
+  reviews Review[]
   cart Cart?
   fullName String
   email String @unique
@@ -189,6 +190,22 @@ model CartItem {
   cart Cart @relation(fields: [cartId], references: [id])
   productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
   quantity Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model Review {
+  id String @id @default(uuid())
+  userId String
+  //orderItemId String
+  user User @relation(fields: [userId], references: [id])
+  //orderItem OrderItem @relation(fields: [orderItemId], references: [id])
+  rating Int
+  comment String
+  images String?
+  isVerifiedPurchase Boolean
+  isHidden Boolean
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
