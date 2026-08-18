@@ -65,6 +65,7 @@ model Product{
   id String @id @default(uuid()) // productId = id.
   brandId String?
   variants ProductVariant[] // since it's N.
+  images ProductImage[]
   brand Brand? @relation(fields: [brandId], references: [id])
   categoryId String
   category Category @relation(fields: [categoryId], references: [id])
@@ -84,6 +85,8 @@ model ProductVariant {
   id String @id @default(uuid())
   productId String
   product Product @relation(fields: [productId], references: [id])
+  variantAttributeValue VariantAttributeValue []
+  images ProductImage[]
   sku String
   price Float
   stock Int
@@ -118,7 +121,20 @@ model VariantAttributeValue {
   attributeValueId String
   productVariantId String
   attributeValue AttributeValue @relation(fields: [attributeValueId], references: [id])
-  //productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
-
+  productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
   createdAt DateTime @default(now())
+}
+
+model ProductImage {
+  id String @id @default(uuid())
+  productId String
+  productVariantId String?
+  productVariant ProductVariant? @relation(fields: [productVariantId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+  url String
+  altText String
+  displayOrder Int
+  isPrimary Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
