@@ -292,3 +292,11 @@ model Payment{
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 }
+
+model OrderStatusHistory {
+  id String @id @default(uuid())
+  //orderId String
+  //order Order @relation(fields: [orderId], references: [id])
+  status String
+  createdAt DateTime @default(now())
+}
