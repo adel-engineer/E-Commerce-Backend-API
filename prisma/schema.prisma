@@ -277,3 +277,18 @@ model OrderAddress {
   description String?
   createdAt DateTime @default(now())
 }
+
+model Payment{
+  id String @id @default(uuid())
+  //orderId String @unique
+  //order Order @relation(fields: [orderId], references: [id])
+  method String
+  status String
+  amount Float
+  currencyCode String
+  paidAt DateTime?
+  transactionId String?
+  description String?
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
