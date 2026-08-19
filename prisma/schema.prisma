@@ -21,6 +21,11 @@ enum AttributeInputType {
    color
 }
 
+enum OrderAddressTypes {
+  SHIPPING
+  BILLING
+}
+
 
 model User{
   id String @id @default(uuid())
@@ -250,9 +255,25 @@ model OrderItem {
   //order Order @relation(fields: [orderId], references: [id])
   productName String
   variantSku String
-  //variantAttributesSnapshot
+  variantAttributesSnapshot Json
   unitPrice Float
   quantity Int
   subtotal Float
+  createdAt DateTime @default(now())
+}
+
+model OrderAddress {
+  id String @id @default(uuid())
+  //orderId String
+  //order Order @relation(fields: [orderId], references: [id])
+  type OrderAddressTypes
+  fullName String
+  phoneNumber Int
+  country String
+  city String
+  addressLine1 String
+  addressLine2 String?
+  postalCode Int
+  description String?
   createdAt DateTime @default(now())
 }
