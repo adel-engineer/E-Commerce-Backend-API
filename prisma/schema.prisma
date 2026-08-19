@@ -34,6 +34,7 @@ model User{
   reviews Review[]
   couponUsages CouponUsage []
   refreshTokens RefreshToken []
+  orders Order []
   cart Cart?
   fullName String
   email String @unique
@@ -79,6 +80,7 @@ model Product{
   variants ProductVariant[] // since it's N.
   images ProductImage[]
   wishlists Wishlist[]
+  reviews Review []
   brand Brand? @relation(fields: [brandId], references: [id])
   categoryId String
   category Category @relation(fields: [categoryId], references: [id])
@@ -208,9 +210,11 @@ model CartItem {
 model Review {
   id String @id @default(uuid())
   userId String
-  //orderItemId String
+  orderItemId String @unique
+  productId String
+  product Product @relation(fields: [productId], references: [id])
   user User @relation(fields: [userId], references: [id])
-  //orderItem OrderItem @relation(fields: [orderItemId], references: [id])
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id])
   rating Int
   comment String
   images String?
@@ -218,6 +222,8 @@ model Review {
   isHidden Boolean
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([userId, productId])
 }
 
 
@@ -243,19 +249,20 @@ model CouponUsage {
   id String @id @default(uuid())
   userId String
   couponId String
-  //orderId String
+  orderId String @unique
   user User @relation(fields: [userId], references: [id])
   coupon Coupon @relation(fields: [couponId], references: [id])
-  //order Order @relation(fields: [orderId], references: [id])
+  order Order @relation(fields: [orderId], references: [id])
   createdAt DateTime @default(now())
 }
 
 model OrderItem {
   id String @id @default(uuid())
-  //orderId String
+  review Review?
+  orderId String
   productVariantId String
   productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
-  //order Order @relation(fields: [orderId], references: [id])
+  order Order @relation(fields: [orderId], references: [id])
   productName String
   variantSku String
   variantAttributesSnapshot Json
@@ -267,8 +274,8 @@ model OrderItem {
 
 model OrderAddress {
   id String @id @default(uuid())
-  //orderId String
-  //order Order @relation(fields: [orderId], references: [id])
+  orderId String
+  order Order @relation(fields: [orderId], references: [id])
   type OrderAddressTypes
   fullName String
   phoneNumber Int
@@ -283,8 +290,8 @@ model OrderAddress {
 
 model Payment{
   id String @id @default(uuid())
-  //orderId String @unique
-  //order Order @relation(fields: [orderId], references: [id])
+  orderId String @unique
+  order Order @relation(fields: [orderId], references: [id])
   method String
   status String
   amount Float
@@ -298,8 +305,8 @@ model Payment{
 
 model OrderStatusHistory {
   id String @id @default(uuid())
-  //orderId String
-  //order Order @relation(fields: [orderId], references: [id])
+  orderId String
+  order Order @relation(fields: [orderId], references: [id])
   status String
   createdAt DateTime @default(now())
 }
@@ -323,5 +330,27 @@ model RefreshToken {
   device String
   expiresAt DateTime
   revokedAt DateTime?
+  createdAt DateTime @default(now())
+}
+
+
+model Order {
+  id String @id @default(uuid())
+  orderItems OrderItem[]
+  orderAddresses OrderAddress[]
+  statusHistory OrderStatusHistory[]
+  couponUsages CouponUsage?
+  payment Payment?
+  userId String?
+  user User? @relation(fields: [userId], references: [id])
+  guestEmail String?
+  status String
+  subtotal Float
+  discountAmount Float
+  shippingAmount Float
+  taxAmount Float
+  totalAmount Float
+  currencyCode String
+  updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 }
