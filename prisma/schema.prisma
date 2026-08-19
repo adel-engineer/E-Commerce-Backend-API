@@ -27,6 +27,7 @@ model User{
   wishlists Wishlist[]
   address Address[]
   reviews Review[]
+  couponUsages CouponUsage []
   cart Cart?
   fullName String
   email String @unique
@@ -213,6 +214,7 @@ model Review {
 
 model Coupon {
   id String @id @default(uuid())
+  couponUsages CouponUsage []
   code String
   type String
   value Int
@@ -226,4 +228,15 @@ model Coupon {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
+}
+
+model CouponUsage {
+  id String @id @default(uuid())
+  userId String
+  couponId String
+  //orderId String
+  user User @relation(fields: [userId], references: [id])
+  coupon Coupon @relation(fields: [couponId], references: [id])
+  //order Order @relation(fields: [couponId], references: [id])
+  createdAt DateTime @default(now())
 }
