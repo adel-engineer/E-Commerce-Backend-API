@@ -1,6 +1,5 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
@@ -18,12 +17,42 @@ enum Role {
 }
 
 enum AttributeInputType {
-   color
+  TEXT
+  NUMBER
+  COLOR
+  SELECT
+  BOOLEAN
+
 }
 
 enum OrderAddressTypes {
   SHIPPING
   BILLING
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUND_REQUESTED
+  REFUNDED
+  RETURNED
 }
 
 
@@ -35,10 +64,11 @@ model User{
   couponUsages CouponUsage []
   refreshTokens RefreshToken []
   orders Order []
+  orderStatusChanges OrderStatusHistory[]
   cart Cart?
   fullName String
   email String @unique
-  phone Int @unique
+  phone String @unique
   passwordHash String
   avatar String?
   role Role
@@ -69,6 +99,8 @@ model Category{
   children Category[] @relation("CategoryHierarchy") 
   name String @unique
   description String? 
+  slug String
+  displayOrder Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
@@ -81,6 +113,7 @@ model Product{
   images ProductImage[]
   wishlists Wishlist[]
   reviews Review []
+  orderItems OrderItem []
   brand Brand? @relation(fields: [brandId], references: [id])
   categoryId String
   category Category @relation(fields: [categoryId], references: [id])
@@ -88,9 +121,8 @@ model Product{
   slug String @unique
   description String
   isActive Boolean
-  avaRating Float
+  avgRating Float
   salesCount Int
-  createdBy String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
@@ -105,8 +137,9 @@ model ProductVariant {
   cartItems CartItem[]
   orderItems OrderItem []
   sku String
-  price Float
-  stock Int
+  price Decimal @db.Decimal(12, 2)
+  stockQuantity Int
+  isActive Boolean
   currencyCode String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -141,6 +174,8 @@ model VariantAttributeValue {
   attributeValue AttributeValue @relation(fields: [attributeValueId], references: [id])
   productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([productVariantId, attributeValueId])
 }
 
 model ProductImage {
@@ -172,6 +207,9 @@ model Address {
   id String @id @default(uuid())
   userId String
   user User @relation(fields: [userId], references: [id])
+  fullName String
+  phone String
+  state String
   label String
   country String
   city String
@@ -179,7 +217,8 @@ model Address {
   addressLine2 String?
   postalCode String
   description String?
-  isDefault Boolean
+  isDefaultShipping Boolean
+  isDefaultBilling Boolean
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
@@ -188,8 +227,9 @@ model Address {
 model Cart {
   id String @id @default(uuid())
   cartItems CartItem[]
-  userId String
-  user User @relation(fields: [userId], references: [id])
+  guestToken String?
+  userId String?
+  user User? @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@unique([userId])
@@ -215,6 +255,7 @@ model Review {
   product Product @relation(fields: [productId], references: [id])
   user User @relation(fields: [userId], references: [id])
   orderItem OrderItem @relation(fields: [orderItemId], references: [id])
+  title String
   rating Int
   comment String
   images String?
@@ -230,15 +271,16 @@ model Review {
 model Coupon {
   id String @id @default(uuid())
   couponUsages CouponUsage []
+  orders Order []
   code String
-  type String
+  type CouponType
   value Int
-  maximumDiscount Int?
-  minimumOrderAmount Int
-  usageLimit Int
-  usageLimitPerUser Int
-  startsAt String
-  expiresAt String
+  maximumDiscount Decimal? @db.Decimal(12, 2)
+  minimumOrderAmount Decimal @db.Decimal(12, 2)
+  usageLimit Int?
+  usageLimitPerUser Int?
+  startsAt DateTime
+  expiresAt DateTime
   isActive Boolean
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -247,13 +289,16 @@ model Coupon {
 
 model CouponUsage {
   id String @id @default(uuid())
-  userId String
+  userId String?
+  guestEmail String?
   couponId String
   orderId String @unique
-  user User @relation(fields: [userId], references: [id])
+  user User? @relation(fields: [userId], references: [id])
   coupon Coupon @relation(fields: [couponId], references: [id])
   order Order @relation(fields: [orderId], references: [id])
+  usedAt DateTime
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model OrderItem {
@@ -261,15 +306,19 @@ model OrderItem {
   review Review?
   orderId String
   productVariantId String
+  productId String?
+  product Product? @relation(fields: [productId], references: [id])
   productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
   order Order @relation(fields: [orderId], references: [id])
   productName String
   variantSku String
+  currencyCode String
   variantAttributesSnapshot Json
-  unitPrice Float
+  unitPrice Decimal @db.Decimal(12, 2)
   quantity Int
-  subtotal Float
+  subtotal Decimal @db.Decimal(12, 2)
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model OrderAddress {
@@ -278,27 +327,28 @@ model OrderAddress {
   order Order @relation(fields: [orderId], references: [id])
   type OrderAddressTypes
   fullName String
-  phoneNumber Int
+  phone String
   country String
   city String
   addressLine1 String
   addressLine2 String?
-  postalCode Int
+  postalCode String
   description String?
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Payment{
   id String @id @default(uuid())
-  orderId String @unique
+  orderId String
   order Order @relation(fields: [orderId], references: [id])
   method String
-  status String
-  amount Float
+  status PaymentStatus
+  amount Decimal @db.Decimal(12, 2)
   currencyCode String
   paidAt DateTime?
-  transactionId String?
-  description String?
+  referenceNumber String?
+  notes String?
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 }
@@ -307,8 +357,13 @@ model OrderStatusHistory {
   id String @id @default(uuid())
   orderId String
   order Order @relation(fields: [orderId], references: [id])
-  status String
+  fromStatus OrderStatus
+  toStatus OrderStatus
+  changedBy String?
+  changedByUser User? @relation(fields: [changedBy], references: [id])
+  reason String?
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model CategoryAttribute {
@@ -318,16 +373,22 @@ model CategoryAttribute {
   attributeId String
   attribute Attribute @relation(fields: [attributeId], references: [id])
   isRequired Boolean
+  isFilterable Boolean
+  displayOrder Int
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
+
+  @@unique([categoryId, attributeId])
 }
 
 model RefreshToken {
   id String @id @default(uuid())
-  token String @unique
+  tokenHash String @unique
   userId String
   user User @relation(fields: [userId], references: [id])
-  device String
+  deviceName String
+  ipAddress String
+  lastUsedAt DateTime
   expiresAt DateTime
   revokedAt DateTime?
   createdAt DateTime @default(now())
@@ -340,16 +401,23 @@ model Order {
   orderAddresses OrderAddress[]
   statusHistory OrderStatusHistory[]
   couponUsages CouponUsage?
-  payment Payment?
+  couponId String?
+  payment Payment []
   userId String?
   user User? @relation(fields: [userId], references: [id])
+  coupon Coupon? @relation(fields: [couponId], references: [id])
   guestEmail String?
-  status String
-  subtotal Float
-  discountAmount Float
-  shippingAmount Float
-  taxAmount Float
-  totalAmount Float
+  customerName String
+  customerPhone String
+  customerEmail String
+  status OrderStatus
+  shippingMethodId String //ShippingMethod
+  //shippingMethod ShippingMethod @relation(fields: [shippingAmount], references: [id])
+  subtotal Decimal @db.Decimal(12, 2)
+  discountAmount Decimal @db.Decimal(12, 2)
+  shippingAmount Decimal @db.Decimal(12, 2)
+  taxAmount Decimal @db.Decimal(12, 2)
+  totalAmount Decimal @db.Decimal(12, 2)
   currencyCode String
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
