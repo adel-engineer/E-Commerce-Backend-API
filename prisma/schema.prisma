@@ -22,7 +22,6 @@ enum AttributeInputType {
   COLOR
   SELECT
   BOOLEAN
-
 }
 
 enum OrderAddressTypes {
@@ -40,7 +39,6 @@ enum PaymentStatus {
   PAID
   FAILED
   REFUNDED
-
 }
 
 enum OrderStatus {
@@ -55,383 +53,382 @@ enum OrderStatus {
   RETURNED
 }
 
-
-model User{
-  id String @id @default(uuid())
-  wishlists Wishlist[]
-  address Address[]
-  reviews Review[]
-  couponUsages CouponUsage []
-  refreshTokens RefreshToken []
-  orders Order []
+model User {
+  id                 String               @id @default(uuid())
+  wishlists          Wishlist[]
+  address            Address[]
+  reviews            Review[]
+  couponUsages       CouponUsage[]
+  refreshTokens      RefreshToken[]
+  orders             Order[]
   orderStatusChanges OrderStatusHistory[]
-  cart Cart?
-  fullName String
-  email String @unique
-  phone String @unique
-  passwordHash String
-  avatar String?
-  role Role
-  isActive Boolean @default(true)
-  emailVerifiedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  cart               Cart?
+  fullName           String
+  email              String               @unique
+  phone              String               @unique
+  passwordHash       String
+  avatar             String?
+  role               Role
+  isActive           Boolean              @default(true)
+  emailVerifiedAt    DateTime?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
 }
 
-model Brand{
-  id String @id @default(uuid())
-  name String @unique
-  slug String @unique
-  products Product[]
-  logoUrl String?
+model Brand {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  slug        String    @unique
+  products    Product[]
+  logoUrl     String?
   description String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
 }
 
-model Category{
-  id String @id @default(uuid())
-  parentId String?
-  products Product[]
-  categoryAttributes CategoryAttribute []
-  parent Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
-  children Category[] @relation("CategoryHierarchy") 
-  name String @unique
-  description String? 
-  slug String
-  displayOrder Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime?
+model Category {
+  id                 String              @id @default(uuid())
+  parentId           String?
+  products           Product[]
+  categoryAttributes CategoryAttribute[]
+  parent             Category?           @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children           Category[]          @relation("CategoryHierarchy")
+  name               String              @unique
+  description        String?
+  slug               String
+  displayOrder       Int
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  deletedAt          DateTime?
 }
 
-model Product{
-  id String @id @default(uuid()) // productId = id.
-  brandId String?
-  variants ProductVariant[] // since it's N.
-  images ProductImage[]
-  wishlists Wishlist[]
-  reviews Review []
-  orderItems OrderItem []
-  brand Brand? @relation(fields: [brandId], references: [id])
-  categoryId String
-  category Category @relation(fields: [categoryId], references: [id])
-  name String
-  slug String @unique
+model Product {
+  id          String           @id @default(uuid()) // productId = id.
+  brandId     String?
+  variants    ProductVariant[] // since it's N.
+  images      ProductImage[]
+  wishlists   Wishlist[]
+  reviews     Review[]
+  orderItems  OrderItem[]
+  brand       Brand?           @relation(fields: [brandId], references: [id])
+  categoryId  String
+  category    Category         @relation(fields: [categoryId], references: [id])
+  name        String
+  slug        String           @unique
   description String
-  isActive Boolean
-  avgRating Float
-  salesCount Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime?
+  isActive    Boolean
+  avgRating   Float
+  salesCount  Int
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  deletedAt   DateTime?
 }
 
 model ProductVariant {
-  id String @id @default(uuid())
-  productId String
-  product Product @relation(fields: [productId], references: [id])
-  variantAttributeValue VariantAttributeValue []
-  images ProductImage[]
-  cartItems CartItem[]
-  orderItems OrderItem []
-  sku String
-  price Decimal @db.Decimal(12, 2)
-  stockQuantity Int
-  isActive Boolean
-  currencyCode String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime?
+  id                    String                  @id @default(uuid())
+  productId             String
+  product               Product                 @relation(fields: [productId], references: [id])
+  variantAttributeValue VariantAttributeValue[]
+  images                ProductImage[]
+  cartItems             CartItem[]
+  orderItems            OrderItem[]
+  sku                   String
+  price                 Decimal                 @db.Decimal(12, 2)
+  stockQuantity         Int
+  isActive              Boolean
+  currencyCode          String
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  deletedAt             DateTime?
 }
 
-model Attribute{
-  id String @id @default(uuid())
-  name String @unique
-  inputType AttributeInputType
-  attributeValues AttributeValue[]
-  categoryAttributes CategoryAttribute []
-//categoryAttributes CategoryAttribute[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Attribute {
+  id                 String              @id @default(uuid())
+  name               String              @unique
+  inputType          AttributeInputType
+  attributeValues    AttributeValue[]
+  categoryAttributes CategoryAttribute[]
+  //categoryAttributes CategoryAttribute[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
 }
 
 model AttributeValue {
-  id String @id @default(uuid())
-  value String
-  attributeId String
-  attribute Attribute @relation(fields: [attributeId], references: [id])
-  variantAttributeValue VariantAttributeValue []
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                    String                  @id @default(uuid())
+  value                 String
+  attributeId           String
+  attribute             Attribute               @relation(fields: [attributeId], references: [id])
+  variantAttributeValue VariantAttributeValue[]
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
 }
 
 model VariantAttributeValue {
-  id String @id @default(uuid())
+  id               String         @id @default(uuid())
   attributeValueId String
   productVariantId String
-  attributeValue AttributeValue @relation(fields: [attributeValueId], references: [id])
-  productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  attributeValue   AttributeValue @relation(fields: [attributeValueId], references: [id])
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
   @@unique([productVariantId, attributeValueId])
 }
 
 model ProductImage {
-  id String @id @default(uuid())
-  productId String
+  id               String          @id @default(uuid())
+  productId        String
   productVariantId String?
-  productVariant ProductVariant? @relation(fields: [productVariantId], references: [id])
-  product Product @relation(fields: [productId], references: [id])
-  url String
-  altText String
-  displayOrder Int
-  isPrimary Boolean
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  productVariant   ProductVariant? @relation(fields: [productVariantId], references: [id])
+  product          Product         @relation(fields: [productId], references: [id])
+  url              String
+  altText          String
+  displayOrder     Int
+  isPrimary        Boolean
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 }
 
 model Wishlist {
-  id String @id @default(uuid())
-  userId String
+  id        String   @id @default(uuid())
+  userId    String
   productId String
-  user User @relation(fields: [userId], references: [id])
-  product Product @relation(fields: [productId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
   @@unique([userId, productId])
 }
 
 model Address {
-  id String @id @default(uuid())
-  userId String
-  user User @relation(fields: [userId], references: [id])
-  fullName String
-  phone String
-  state String
-  label String
-  country String
-  city String
-  addressLine1 String
-  addressLine2 String?
-  postalCode String
-  description String?
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id])
+  fullName          String
+  phone             String
+  state             String
+  label             String
+  country           String
+  city              String
+  addressLine1      String
+  addressLine2      String?
+  postalCode        String
+  description       String?
   isDefaultShipping Boolean
-  isDefaultBilling Boolean
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime?
+  isDefaultBilling  Boolean
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
 }
 
 model Cart {
-  id String @id @default(uuid())
-  cartItems CartItem[]
+  id         String     @id @default(uuid())
+  cartItems  CartItem[]
   guestToken String?
-  userId String?
-  user User? @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  userId     String?
+  user       User?      @relation(fields: [userId], references: [id])
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
   @@unique([userId])
 }
 
 model CartItem {
-  id String @id @default(uuid())
-  cartId String
+  id               String         @id @default(uuid())
+  cartId           String
   productVariantId String
-  cart Cart @relation(fields: [cartId], references: [id])
-  productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
-  quantity Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  cart             Cart           @relation(fields: [cartId], references: [id])
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
+  quantity         Int
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 }
 
-
 model Review {
-  id String @id @default(uuid())
-  userId String
-  orderItemId String @unique
-  productId String
-  product Product @relation(fields: [productId], references: [id])
-  user User @relation(fields: [userId], references: [id])
-  orderItem OrderItem @relation(fields: [orderItemId], references: [id])
-  title String
-  rating Int
-  comment String
-  images String?
+  id                 String    @id @default(uuid())
+  userId             String
+  orderItemId        String    @unique
+  productId          String
+  product            Product   @relation(fields: [productId], references: [id])
+  user               User      @relation(fields: [userId], references: [id])
+  orderItem          OrderItem @relation(fields: [orderItemId], references: [id])
+  title              String
+  rating             Int
+  comment            String
+  images             String?
   isVerifiedPurchase Boolean
-  isHidden Boolean
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  isHidden           Boolean
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   @@unique([userId, productId])
 }
 
-
 model Coupon {
-  id String @id @default(uuid())
-  couponUsages CouponUsage []
-  orders Order []
-  code String
-  type CouponType
-  value Int
-  maximumDiscount Decimal? @db.Decimal(12, 2)
-  minimumOrderAmount Decimal @db.Decimal(12, 2)
-  usageLimit Int?
-  usageLimitPerUser Int?
-  startsAt DateTime
-  expiresAt DateTime
-  isActive Boolean
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime?
+  id                 String        @id @default(uuid())
+  couponUsages       CouponUsage[]
+  orders             Order[]
+  code               String
+  type               CouponType
+  value              Int
+  maximumDiscount    Decimal?      @db.Decimal(12, 2)
+  minimumOrderAmount Decimal       @db.Decimal(12, 2)
+  usageLimit         Int?
+  usageLimitPerUser  Int?
+  startsAt           DateTime
+  expiresAt          DateTime
+  isActive           Boolean
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  deletedAt          DateTime?
 }
 
 model CouponUsage {
-  id String @id @default(uuid())
-  userId String?
+  id         String   @id @default(uuid())
+  userId     String?
   guestEmail String?
-  couponId String
-  orderId String @unique
-  user User? @relation(fields: [userId], references: [id])
-  coupon Coupon @relation(fields: [couponId], references: [id])
-  order Order @relation(fields: [orderId], references: [id])
-  usedAt DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  couponId   String
+  orderId    String   @unique
+  user       User?    @relation(fields: [userId], references: [id])
+  coupon     Coupon   @relation(fields: [couponId], references: [id])
+  order      Order    @relation(fields: [orderId], references: [id])
+  usedAt     DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model OrderItem {
-  id String @id @default(uuid())
-  review Review?
-  orderId String
-  productVariantId String
-  productId String?
-  product Product? @relation(fields: [productId], references: [id])
-  productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
-  order Order @relation(fields: [orderId], references: [id])
-  productName String
-  variantSku String
-  currencyCode String
+  id                        String         @id @default(uuid())
+  review                    Review?
+  orderId                   String
+  productVariantId          String
+  productId                 String?
+  product                   Product?       @relation(fields: [productId], references: [id])
+  productVariant            ProductVariant @relation(fields: [productVariantId], references: [id])
+  order                     Order          @relation(fields: [orderId], references: [id])
+  productName               String
+  variantSku                String
+  currencyCode              String
   variantAttributesSnapshot Json
-  unitPrice Decimal @db.Decimal(12, 2)
-  quantity Int
-  subtotal Decimal @db.Decimal(12, 2)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  unitPrice                 Decimal        @db.Decimal(12, 2)
+  quantity                  Int
+  subtotal                  Decimal        @db.Decimal(12, 2)
+  createdAt                 DateTime       @default(now())
+  updatedAt                 DateTime       @updatedAt
 }
 
 model OrderAddress {
-  id String @id @default(uuid())
-  orderId String
-  order Order @relation(fields: [orderId], references: [id])
-  type OrderAddressTypes
-  fullName String
-  phone String
-  country String
-  city String
+  id           String            @id @default(uuid())
+  orderId      String
+  order        Order             @relation(fields: [orderId], references: [id])
+  type         OrderAddressTypes
+  fullName     String
+  phone        String
+  country      String
+  city         String
   addressLine1 String
   addressLine2 String?
-  postalCode String
-  description String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  postalCode   String
+  description  String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
 }
 
-model Payment{
-  id String @id @default(uuid())
-  orderId String
-  order Order @relation(fields: [orderId], references: [id])
-  method String
-  status PaymentStatus
-  amount Decimal @db.Decimal(12, 2)
-  currencyCode String
-  paidAt DateTime?
+model Payment {
+  id              String        @id @default(uuid())
+  orderId         String
+  order           Order         @relation(fields: [orderId], references: [id])
+  method          String
+  status          PaymentStatus
+  amount          Decimal       @db.Decimal(12, 2)
+  currencyCode    String
+  paidAt          DateTime?
   referenceNumber String?
-  notes String?
-  updatedAt DateTime @updatedAt
-  createdAt DateTime @default(now())
+  notes           String?
+  updatedAt       DateTime      @updatedAt
+  createdAt       DateTime      @default(now())
 }
 
 model OrderStatusHistory {
-  id String @id @default(uuid())
-  orderId String
-  order Order @relation(fields: [orderId], references: [id])
-  fromStatus OrderStatus
-  toStatus OrderStatus
-  changedBy String?
-  changedByUser User? @relation(fields: [changedBy], references: [id])
-  reason String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String      @id @default(uuid())
+  orderId       String
+  order         Order       @relation(fields: [orderId], references: [id])
+  fromStatus    OrderStatus
+  toStatus      OrderStatus
+  changedBy     String?
+  changedByUser User?       @relation(fields: [changedBy], references: [id])
+  reason        String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 }
 
 model CategoryAttribute {
-  id String @id @default(uuid())
-  categoryId String
-  category Category @relation(fields: [categoryId], references: [id])
-  attributeId String
-  attribute Attribute @relation(fields: [attributeId], references: [id])
-  isRequired Boolean
+  id           String    @id @default(uuid())
+  categoryId   String
+  category     Category  @relation(fields: [categoryId], references: [id])
+  attributeId  String
+  attribute    Attribute @relation(fields: [attributeId], references: [id])
+  isRequired   Boolean
   isFilterable Boolean
   displayOrder Int
-  updatedAt DateTime @updatedAt
-  createdAt DateTime @default(now())
+  updatedAt    DateTime  @updatedAt
+  createdAt    DateTime  @default(now())
 
   @@unique([categoryId, attributeId])
 }
 
 model RefreshToken {
-  id String @id @default(uuid())
-  tokenHash String @unique
-  userId String
-  user User @relation(fields: [userId], references: [id])
+  id         String    @id @default(uuid())
+  tokenHash  String    @unique
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
   deviceName String
-  ipAddress String
+  ipAddress  String
   lastUsedAt DateTime
-  expiresAt DateTime
-  revokedAt DateTime?
-  createdAt DateTime @default(now())
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
 }
 
 model ShippingMethod {
-  id String @id @default(uuid())
-  orders Order[]
-  name String
-  cost Decimal @db.Decimal(12, 2)
-  currencyCode String
+  id                    String    @id @default(uuid())
+  orders                Order[]
+  name                  String
+  cost                  Decimal   @db.Decimal(12, 2)
+  currencyCode          String
   estimatedDeliveryDays Int
-  isActive Boolean
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime?
+  isActive              Boolean
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  deletedAt             DateTime?
 }
 
-
 model Order {
-  id String @id @default(uuid())
-  orderItems OrderItem[]
-  orderAddresses OrderAddress[]
-  statusHistory OrderStatusHistory[]
-  couponUsages CouponUsage?
-  couponId String?
-  payment Payment []
-  userId String?
-  user User? @relation(fields: [userId], references: [id])
-  coupon Coupon? @relation(fields: [couponId], references: [id])
-  guestEmail String?
-  customerName String
-  customerPhone String
-  customerEmail String
-  status OrderStatus
+  id               String               @id @default(uuid())
+  orderItems       OrderItem[]
+  orderAddresses   OrderAddress[]
+  statusHistory    OrderStatusHistory[]
+  couponUsages     CouponUsage?
+  couponId         String?
+  payment          Payment[]
+  userId           String?
+  user             User?                @relation(fields: [userId], references: [id])
+  coupon           Coupon?              @relation(fields: [couponId], references: [id])
+  guestEmail       String?
+  customerName     String
+  customerPhone    String
+  customerEmail    String
+  status           OrderStatus
   shippingMethodId String //ShippingMethod
-  shippingMethod ShippingMethod @relation(fields: [shippingMethodId], references: [id])
-  subtotal Decimal @db.Decimal(12, 2)
-  discountAmount Decimal @db.Decimal(12, 2)
-  shippingAmount Decimal @db.Decimal(12, 2)
-  taxAmount Decimal @db.Decimal(12, 2)
-  totalAmount Decimal @db.Decimal(12, 2)
-  currencyCode String
-  updatedAt DateTime @updatedAt
-  createdAt DateTime @default(now())
+  shippingMethod   ShippingMethod       @relation(fields: [shippingMethodId], references: [id])
+  subtotal         Decimal              @db.Decimal(12, 2)
+  discountAmount   Decimal              @db.Decimal(12, 2)
+  shippingAmount   Decimal              @db.Decimal(12, 2)
+  taxAmount        Decimal              @db.Decimal(12, 2)
+  totalAmount      Decimal              @db.Decimal(12, 2)
+  currencyCode     String
+  updatedAt        DateTime             @updatedAt
+  createdAt        DateTime             @default(now())
 }
