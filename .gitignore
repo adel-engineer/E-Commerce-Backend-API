@@ -2,8 +2,15 @@ node_modules
 # Keep environment variables out of version control
 .env
 
-/generated/prisma
+src/generated/
 
 .agents
 .claude
 .windsurf
+
+package.json
+package-lock.json
+prisma/schema.prisma
+src/server.ts
+src/config/db.ts
+src/config/env.ts
