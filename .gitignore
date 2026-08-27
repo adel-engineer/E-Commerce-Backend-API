@@ -8,9 +8,3 @@ src/generated/
 .claude
 .windsurf
 
-package.json
-package-lock.json
-prisma/schema.prisma
-src/server.ts
-src/config/db.ts
-src/config/env.ts
