@@ -3,7 +3,10 @@ export class AppError extends Error {
         public code: string,
         public httpStatus: number,
         message: string,
-        public details?: string
+        public details?: {
+          field: string;
+          issue: string;  
+        }[]
     ){
         super(message)
     }
