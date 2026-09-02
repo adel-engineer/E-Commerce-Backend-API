@@ -3,7 +3,7 @@ import "dotenv/config"
 const requiredEnvVariables = [
   "DATABASE_URL",
   "PORT",
-  //"JWT_SECRET",
+  "JWT_SECRET",
 ];
 
 for(const variable of requiredEnvVariables) {
@@ -15,5 +15,5 @@ for(const variable of requiredEnvVariables) {
 export const env = {
   DATABASE_URL: process.env.DATABASE_URL!,
   PORT: Number(process.env.PORT),
-  //JWT_SECRET: process.env.JWT_SECRET!,
+  JWT_SECRET: process.env.JWT_SECRET!,
 };
