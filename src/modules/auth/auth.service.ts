@@ -108,7 +108,11 @@ export const login = async ({
     )
 
     const refreshToken = crypto.randomBytes(32).toString("hex");
-    const refreshTokenHash  = await hashPassword(refreshToken)
+
+    const refreshTokenHash  =   crypto
+        .createHash("sha256")
+        .update(refreshToken)
+        .digest("hex")
 
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 30);
