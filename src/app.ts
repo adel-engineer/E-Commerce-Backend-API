@@ -12,7 +12,6 @@ app.use(helmet());
 app.use(express.json());
 // Auth Router
 app.use("/api/auth", authRoutes);
-
 // app.use(cors({
 //     origin: env.CLIENT_URL,
 // }))

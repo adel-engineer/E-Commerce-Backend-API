@@ -1,6 +1,11 @@
 import { prisma } from "../../config/db.js";
 import { AppError } from "../../shared/errors/AppError.js"
-import { hashPassword } from "../../shared/auth/password.js"
+import { comparePassword, hashPassword } from "../../shared/auth/password.js"
+import { generateAccessToken } from "../../shared/auth/token.js"
+import { email, string } from "zod";
+import crypto from "node:crypto";
+import { Role } from "../../generated/prisma/enums.js";
+import { ro } from "zod/v4/locales";
 
 export const register = async ({
   fullName,
@@ -59,6 +64,80 @@ export const register = async ({
       role: user.role,
 }
 }
+
+export const login = async ({
+    email,
+    password,
+    deviceName,
+    ipAddress
+}: {
+    email: string,
+    password: string,
+    deviceName: string,
+    ipAddress: string
+}) => {
+    const user  = await prisma.user.findUnique({
+        where: {
+            email,
+        },
+    })
+
+    if(!user){
+        throw new AppError(
+            "INVALID_CREDENTIALS",
+            401,
+            "Invalid email or password"
+        )
+    }
+
+    const isPasswordValid = await comparePassword(
+        password, user.passwordHash)
+
+
+    if (!isPasswordValid) {
+         throw new AppError(
+          "INVALID_CREDENTIALS",
+            401,
+          "Invalid email or password"
+        );
+    }
+
+    const accessToken = await generateAccessToken(
+        user.id,
+        user.role
+    )
+
+    const refreshToken = crypto.randomBytes(32).toString("hex");
+    const refreshTokenHash  = await hashPassword(refreshToken)
+
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 30);
+
+
+    const session = await prisma.refreshToken.create({
+        data: {
+            tokenHash: refreshTokenHash,
+            userId: user.id,
+            deviceName,
+            ipAddress,
+            lastUsedAt: new Date(),
+            expiresAt,
+        },
+    })
+
+    return{
+        accessToken,
+        refreshToken,
+        user: {
+            fullName: user.fullName,
+            id: user.id,
+            email: user.email,
+            phone: user.phone,
+            role: user.role,
+        },
+    }
+}
+
 
 
 
