@@ -2,9 +2,8 @@ import { prisma } from "../../config/db.js";
 import { AppError } from "../../shared/errors/AppError.js"
 import { comparePassword, hashPassword } from "../../shared/auth/password.js"
 import { generateAccessToken } from "../../shared/auth/token.js"
-import { date, email, string } from "zod";
 import crypto from "node:crypto";
-import { Role } from "../../generated/prisma/enums.js";
+import { Session } from "node:inspector";
 
 export const register = async ({
   fullName,
@@ -237,7 +236,39 @@ export const refresh = async ({
     }
 }
 
+export const logout = async ({
+    refreshToken,
+}: {
+    refreshToken:string
+}) => {
+    const refreshTokenHash  =   crypto
+        .createHash("sha256")
+        .update(refreshToken)
+        .digest("hex")
 
+    const refresh = await prisma.refreshToken.findUnique({
+        where: {
+            tokenHash: refreshTokenHash
+        }
+    })
+
+    if(!refresh){
+        throw new AppError(
+            "INVALID_REFRESH_TOKEN",
+            401,
+            "Invalid refresh token"
+        );
+    }
+
+    await prisma.refreshToken.update({
+        where: {
+            id: refresh.id,
+        },
+        data: {
+            revokedAt: new Date()
+        }
+    })
+}
 
 
 

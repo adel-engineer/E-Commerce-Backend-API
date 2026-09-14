@@ -3,7 +3,7 @@ import {
   register as registerUser,
   login as loginUser,
   refresh as refreshUser,
-  // logout as logoutUser
+  logout as logoutUser
  } from "./auth.service.js";
 
 
@@ -40,3 +40,12 @@ export const refresh = async (req: Request, res: Response) => {
   })
 }
 
+
+export const logout = async (req: Request, res: Response) => {
+  const result  = await logoutUser(req.body);
+
+  res.status(200).json({
+    message: "User logged out successfully",
+    data: result 
+  })
+}
