@@ -1,7 +1,9 @@
 import {Request, Response} from "express"
 import { 
   register as registerUser,
-  login as loginUser
+  login as loginUser,
+  refresh as refreshUser,
+  // logout as logoutUser
  } from "./auth.service.js";
 
 
@@ -27,5 +29,14 @@ export const login = async (req: Request, res: Response) => {
      message: "User logged in successfully",
      data:user,
   });
+}
+
+export const refresh = async (req: Request, res: Response) => {
+  const tokens = await refreshUser(req.body);
+
+  res.status(200).json({
+    message: "Token refreshed successfully",
+    data: tokens
+  })
 }
 

@@ -2,10 +2,9 @@ import { prisma } from "../../config/db.js";
 import { AppError } from "../../shared/errors/AppError.js"
 import { comparePassword, hashPassword } from "../../shared/auth/password.js"
 import { generateAccessToken } from "../../shared/auth/token.js"
-import { email, string } from "zod";
+import { date, email, string } from "zod";
 import crypto from "node:crypto";
 import { Role } from "../../generated/prisma/enums.js";
-import { ro } from "zod/v4/locales";
 
 export const register = async ({
   fullName,
@@ -141,6 +140,103 @@ export const login = async ({
         },
     }
 }
+
+export const refresh = async ({
+    refreshToken,
+}: {
+    refreshToken:string
+}) => {
+    const refreshTokenHash  =   crypto
+        .createHash("sha256")
+        .update(refreshToken)
+        .digest("hex")
+
+    const refresh = await prisma.refreshToken.findUnique({
+        where: {
+            tokenHash: refreshTokenHash
+        }
+    })
+
+    if(!refresh){
+        throw new AppError(
+            "INVALID_REFRESH_TOKEN",
+            401,
+            "Invalid refresh token"
+        );
+    }
+
+    if(refresh.expiresAt < new Date()){
+        throw new AppError(
+        "REFRESH_TOKEN_EXPIRED",
+         401,
+        "Refresh token has expired"
+    );
+    }
+
+    if(refresh.revokedAt) {
+      throw new AppError(
+      "REFRESH_TOKEN_REVOKED",
+       401,
+      "Refresh token has been revoked"
+     )
+    }
+
+    await prisma.refreshToken.update({
+        where: {
+            id: refresh.id,
+        },
+        data: {
+            revokedAt: new Date()
+        }
+    })
+
+    const newRefreshToken = crypto.randomBytes(32).toString("hex");
+
+    const newRefreshTokenHash  =   crypto
+        .createHash("sha256")
+        .update(newRefreshToken)
+        .digest("hex")
+
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 30);
+        
+    const session = await prisma.refreshToken.create({
+        data: {
+            tokenHash: newRefreshTokenHash,
+            userId: refresh.userId,
+            deviceName: refresh.deviceName,
+            ipAddress: refresh.ipAddress,
+            lastUsedAt: new Date(),
+            expiresAt
+        },
+    })
+
+    const user = await prisma.user.findUnique({
+        where: {
+            id: refresh.userId
+        },
+    })
+
+    if (!user) {
+        throw new AppError(
+        "USER_NOT_FOUND",
+        401,
+        "User not found"
+  );
+}
+
+    const accessToken = await generateAccessToken(
+        user.id,
+        user.role
+    )
+
+
+    return{
+        accessToken,
+        refreshToken: newRefreshToken,
+    }
+}
+
 
 
 
