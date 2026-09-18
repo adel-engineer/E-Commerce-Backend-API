@@ -3,7 +3,8 @@ import {
   register as registerUser,
   login as loginUser,
   refresh as refreshUser,
-  logout as logoutUser
+  logout as logoutUser,
+  logoutAll as logoutAllUsers
  } from "./auth.service.js";
 
 
@@ -49,3 +50,12 @@ export const logout = async (req: Request, res: Response) => {
     data: result 
   })
 }
+
+
+export const logoutAll = async (req: Request, res: Response) => {
+  await logoutAllUsers(req.user!.id);
+
+  res.status(200).json({
+    message: "Logged out from all devices successfully",
+  });
+};

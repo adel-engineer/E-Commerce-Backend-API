@@ -4,6 +4,7 @@ import { comparePassword, hashPassword } from "../../shared/auth/password.js"
 import { generateAccessToken } from "../../shared/auth/token.js"
 import crypto from "node:crypto";
 import { Session } from "node:inspector";
+import { date } from "zod";
 
 export const register = async ({
   fullName,
@@ -270,6 +271,17 @@ export const logout = async ({
     })
 }
 
+export const logoutAll = async (userId: string) => {
+    await prisma.refreshToken.updateMany({
+        where: {
+            userId,
+            revokedAt: null,
+        },
+        data: {
+            revokedAt: new Date()
+        },
+    })
+}
 
 
 
