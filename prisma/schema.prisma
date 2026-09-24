@@ -73,6 +73,8 @@ model User {
   emailVerifiedAt    DateTime?
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
+  forgotPasswordToken String?
+  forgotPasswordExpiry DateTime?
 }
 
 model Brand {

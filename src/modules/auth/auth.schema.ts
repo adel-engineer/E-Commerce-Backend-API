@@ -47,3 +47,11 @@ export const logoutSchema  = z.object({
      .trim()
      .min(1, "Refresh token is required"),
 })
+
+export const forgotPasswordSchema = z.object({
+    email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email("Invalid email address"),
+})

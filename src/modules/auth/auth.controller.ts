@@ -4,7 +4,8 @@ import {
   login as loginUser,
   refresh as refreshUser,
   logout as logoutUser,
-  logoutAll as logoutAllUsers
+  logoutAll as logoutAllUsers,
+  forgotPassword as forgotPasswordUser
  } from "./auth.service.js";
 
 
@@ -57,5 +58,13 @@ export const logoutAll = async (req: Request, res: Response) => {
 
   res.status(200).json({
     message: "Logged out from all devices successfully",
+  });
+};
+
+export const forgotPassword = async (req: Request, res: Response) => {
+  await forgotPasswordUser(req.body.email);
+
+  res.status(200).json({
+    message: "If the account exists, a password reset link has been sent.",
   });
 };
