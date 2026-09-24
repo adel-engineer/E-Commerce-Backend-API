@@ -5,7 +5,8 @@ import {
   refresh as refreshUser,
   logout as logoutUser,
   logoutAll as logoutAllUsers,
-  forgotPassword as forgotPasswordUser
+  forgotPassword as forgotPasswordUser,
+  resetPassword as resetPasswordUser
  } from "./auth.service.js";
 
 
@@ -62,9 +63,21 @@ export const logoutAll = async (req: Request, res: Response) => {
 };
 
 export const forgotPassword = async (req: Request, res: Response) => {
-  await forgotPasswordUser(req.body.email);
+ const result = await forgotPasswordUser(req.body.email);
 
   res.status(200).json({
     message: "If the account exists, a password reset link has been sent.",
+    resetToken: result.resetToken
+  });
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  await resetPasswordUser(
+    req.params.token as string,
+    req.body.newPassword
+  );
+
+  res.status(200).json({
+    message: "Password reset successfully",
   });
 };

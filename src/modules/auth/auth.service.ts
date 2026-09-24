@@ -320,3 +320,52 @@ export const forgotPassword = async (email: string) => {
         resetToken,
     }
 }
+
+export const resetPassword = async (
+  token: string,
+  newPassword: string
+) => {
+    const resetTokenHash =  crypto
+        .createHash("sha256")
+        .update(token)
+        .digest("hex")
+    
+    const user = await prisma.user.findFirst({
+        where: {
+            forgotPasswordToken: resetTokenHash
+        },
+    })
+
+    if(!user){
+      throw new AppError(
+         "INVALID_RESET_TOKEN",
+         401,
+         "Invalid or expired reset token"
+        );
+    }
+
+    if (!user.forgotPasswordExpiry || user.forgotPasswordExpiry < new Date()) {
+         throw new AppError(
+          "INVALID_RESET_TOKEN",
+           401,
+          "Invalid or expired reset token"
+        );
+    }
+
+    const passwordHash = await hashPassword(newPassword)
+
+    await prisma.user.update({
+     where: {
+       id: user.id,
+         },
+     data: {
+         passwordHash,
+         forgotPasswordToken: null,
+         forgotPasswordExpiry: null,
+         },
+    });
+
+    return {
+        resetTokenHash,
+    };
+}

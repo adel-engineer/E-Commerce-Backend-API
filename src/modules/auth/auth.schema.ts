@@ -55,3 +55,9 @@ export const forgotPasswordSchema = z.object({
     .toLowerCase()
     .email("Invalid email address"),
 })
+
+export const resetPasswordSchema = z.object({
+  newPassword: z
+    .string()
+    .min(8, "Password must be at least 8 characters"),
+});
