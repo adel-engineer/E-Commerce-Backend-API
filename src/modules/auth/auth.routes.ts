@@ -2,7 +2,11 @@ import { Router } from "express";
 import { registerSchema, loginSchema, refreshSchema, logoutSchema, forgotPasswordSchema, resetPasswordSchema } from "./auth.schema.js";
 import { validate } from "../../middlewares/validate.js";
 import {register, login, refresh, logout, logoutAll, forgotPassword, resetPassword} from "../auth/auth.controller.js"
-import { requireAuth } from "../../middlewares/requireAuth.js"
+import { requireAuth} from "../../middlewares/requireAuth.js"
+// import { requireRole } from "../../middlewares/requireRole.js"
+
+
+
 
 
 const router = Router();
@@ -48,7 +52,6 @@ router.post(
     validate(resetPasswordSchema),
     resetPassword
 )
-
 
 
 export default router;
