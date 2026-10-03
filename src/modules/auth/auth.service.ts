@@ -5,6 +5,7 @@ import { generateAccessToken } from "../../shared/auth/token.js"
 import crypto from "node:crypto";
 import { Session } from "node:inspector";
 import { date } from "zod";
+import { sendResetPasswordEmail } from "../../services/email.service.js";
 
 export const register = async ({
   fullName,
@@ -315,10 +316,8 @@ export const forgotPassword = async (email: string) => {
             forgotPasswordExpiry: expiresAt
         }
     })
+    await sendResetPasswordEmail(user.email, resetToken)
 
-    return{
-        resetToken,
-    }
 }
 
 export const resetPassword = async (

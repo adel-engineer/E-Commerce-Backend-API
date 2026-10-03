@@ -22,3 +22,20 @@ export const sendEmail = async (option: {
         html: option.html
     })
 }
+
+export const sendResetPasswordEmail = async (
+    email: string,
+    resetToken: string
+) => {
+    const resetUrl = `http://localhost:3000/reset-password/${resetToken}`
+
+    await sendEmail({
+        to: email,
+        subject: "Reset your password",
+        html: `
+        <h1>Reset your password</h1>
+        <p>Click the link below to reset your password:</p>
+        <a href="${resetUrl}">Reset Password</a>
+        `
+    })
+}
