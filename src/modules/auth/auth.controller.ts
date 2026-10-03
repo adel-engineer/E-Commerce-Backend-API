@@ -67,7 +67,6 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
   res.status(200).json({
     message: "If the account exists, a password reset link has been sent.",
-    resetToken: result.resetToken
   });
 };
 
