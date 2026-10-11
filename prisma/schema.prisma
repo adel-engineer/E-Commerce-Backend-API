@@ -71,6 +71,8 @@ model User {
   role               Role
   isActive           Boolean              @default(true)
   emailVerifiedAt    DateTime?
+  emailVerificationToken  String? 
+  emailVerificationExpiry DateTime?
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   forgotPasswordToken String?
