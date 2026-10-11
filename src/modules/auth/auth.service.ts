@@ -5,7 +5,7 @@ import { generateAccessToken } from "../../shared/auth/token.js"
 import crypto from "node:crypto";
 import { Session } from "node:inspector";
 import { date } from "zod";
-import { sendResetPasswordEmail } from "../../services/email.service.js";
+import { sendResetPasswordEmail, sendVerificationEmail } from "../../services/email.service.js";
 
 export const register = async ({
   fullName,
@@ -46,6 +46,17 @@ export const register = async ({
 
     const passwordHash = await hashPassword(password)
 
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+
+    const verificationTokenHash = crypto
+        .createHash("sha256")
+        .update(verificationToken)
+        .digest("hex");
+
+    const verificationExpiry = new Date();
+    verificationExpiry.setMinutes(verificationExpiry.getMinutes() + 15);
+
+
     const user = await prisma.user.create({
         data: {
             fullName,
@@ -53,9 +64,19 @@ export const register = async ({
             passwordHash,
             phone,
             role: "CUSTOMER",
+
+            emailVerificationToken: verificationTokenHash,
+            emailVerificationExpiry: verificationExpiry,
         }
+
     })
 
+    try{
+        await sendVerificationEmail(user.email, verificationToken);
+    }catch(error){
+        console.error("Failed to send verification email:", error);
+    }
+    
     return {
       id: user.id,
       fullName: user.fullName,
@@ -317,7 +338,6 @@ export const forgotPassword = async (email: string) => {
         }
     })
     await sendResetPasswordEmail(user.email, resetToken)
-
 }
 
 export const resetPassword = async (
@@ -367,4 +387,47 @@ export const resetPassword = async (
     return {
         resetTokenHash,
     };
+}
+
+
+export const verifyEmail = async(
+      token: string,
+) => {
+    const verifyEmailTokenHash =  crypto
+        .createHash("sha256")
+        .update(token)
+        .digest("hex")
+
+    const user = await prisma.user.findFirst({
+        where: {
+            emailVerificationToken : verifyEmailTokenHash
+        },
+    })
+
+    if(!user){
+      throw new AppError(
+         "INVALID_VERIFICATION_TOKEN",
+         401,
+         "Invalid or expired reset token"
+        );
+    }
+
+    if (!user.emailVerificationExpiry || user.emailVerificationExpiry < new Date()) {
+         throw new AppError(
+          "ININVALID_VERIFICATION_TOKEN",
+           401,
+          "Invalid or expired verification token"
+        );
+    }
+
+    await prisma.user.update({
+        where: {
+        id: user.id,
+     },
+     data: {
+         emailVerifiedAt: new Date(),
+         emailVerificationToken: null,
+        emailVerificationExpiry: null,
+        },
+    });
 }

@@ -6,7 +6,9 @@ import {
   logout as logoutUser,
   logoutAll as logoutAllUsers,
   forgotPassword as forgotPasswordUser,
-  resetPassword as resetPasswordUser
+  resetPassword as resetPasswordUser,
+  verifyEmail as verifyEmailUser
+
  } from "./auth.service.js";
 
 
@@ -78,5 +80,15 @@ export const resetPassword = async (req: Request, res: Response) => {
 
   res.status(200).json({
     message: "Password reset successfully",
+  });
+};
+
+export const verifyEmail = async (req: Request, res: Response) => {
+  await verifyEmailUser(
+    req.params.token as string,
+  );
+
+  res.status(200).json({
+    message: "Email verified successfully",
   });
 };

@@ -39,3 +39,21 @@ export const sendResetPasswordEmail = async (
         `
     })
 }
+
+export const sendVerificationEmail = async (
+    email: string,
+    verificationToken: string
+) => {
+    
+    const verificationUrl = `http://localhost:3000/api/auth/verify-email/${verificationToken}`
+
+        await sendEmail({
+        to: email,
+        subject: "Verify your email",
+        html: `
+        <h1>Verify your password</h1>
+        <p>Click the link below to verify your email address:</p>
+        <a href="${verificationUrl}">Verify Email</a>
+        `
+    })
+}
