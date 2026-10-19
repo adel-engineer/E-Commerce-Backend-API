@@ -389,7 +389,6 @@ export const resetPassword = async (
     };
 }
 
-
 export const verifyEmail = async(
       token: string,
 ) => {
