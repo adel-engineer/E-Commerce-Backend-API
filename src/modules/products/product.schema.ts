@@ -7,7 +7,6 @@ const productVariantSchema = z.object({
     currencyCode: z.string().length(3, "Currency code must be 3 characters")
 });
 
-
 export const productSchema = z.object({
   name: z.string().trim().min(1, "Product name is required"),
   slug: z.string().trim().min(1, "Product slug is required"),

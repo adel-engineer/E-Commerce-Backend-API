@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { productSchema } from "./product.schema.js"
-//import { createProductService } from "./product.service.js"
+import { createProductService } from "./product.service.js"
 
 
 export const createProduct = async (
@@ -10,7 +10,13 @@ export const createProduct = async (
 ): Promise<void> => {
     try {
         const data = productSchema.parse(req.body)
-       // const product = await createProductService(data)
+        const product = await createProductService(data)
+        
+            res.status(201).json({
+            message: "Product created successfully",
+            data: product
+        });
+
     } catch(error) {
         next(error)
     }
