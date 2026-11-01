@@ -1,7 +1,9 @@
 import type { Request, Response, NextFunction } from "express";
 import { productSchema } from "./product.schema.js"
 import { createProductService } from "./product.service.js"
-
+import { paginationSchema } from "./product.schema.js";
+import { promises } from "dns";
+import { getAllProductsService } from "./product.service.js";
 
 export const createProduct = async (
     req: Request,
@@ -18,6 +20,27 @@ export const createProduct = async (
         });
 
     } catch(error) {
+        next(error)
+    }
+}
+
+export const getAllProducts = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> => {
+    try {
+        const { page, limit } = paginationSchema.parse(req.query)
+         const result = await getAllProductsService ({
+           page,
+           limit
+        });
+
+        res.status(200).json({
+            message: "Products retrieved successfully",
+            data: result
+        })
+    } catch(error){
         next(error)
     }
 }

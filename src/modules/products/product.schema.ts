@@ -16,4 +16,10 @@ export const productSchema = z.object({
   variants: z.array(productVariantSchema).min(1, "At least one variant is required"),
 });
 
+export const paginationSchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(10)
+});
+
 export type createProductInput = z.infer<typeof productSchema>
+export type paginationInput = z.infer<typeof paginationSchema>;
