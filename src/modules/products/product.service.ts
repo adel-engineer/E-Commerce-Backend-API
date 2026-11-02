@@ -1,4 +1,5 @@
 import { prisma } from "../../config/db.js";
+import { AppError } from "../../shared/errors/AppError.js";
 
 import { type createProductInput,
              type paginationInput
@@ -82,4 +83,27 @@ export const getAllProductsService = async (
             totalPages,
         }
     }
+}
+
+export const getProductByIdService = async (id: string) => {
+    const product = await prisma.product.findUnique({
+        where: {
+            id:id
+        },
+        include: {
+            category: true,
+            brand: true,
+            variants: true
+        }
+    })
+
+    if(!product) {
+        throw new AppError(
+            "PRODUCT_NOT_FOUND",
+            404,
+            "Product not found"
+        )
+    }
+
+    return product;
 }

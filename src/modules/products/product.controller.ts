@@ -1,8 +1,11 @@
 import type { Request, Response, NextFunction } from "express";
+
+
 import { productSchema } from "./product.schema.js"
 import { createProductService } from "./product.service.js"
 import { paginationSchema } from "./product.schema.js";
-import { promises } from "dns";
+import { productIdSchema } from "./product.schema.js";
+import { getProductByIdService } from "./product.service.js"
 import { getAllProductsService } from "./product.service.js";
 
 export const createProduct = async (
@@ -44,3 +47,22 @@ export const getAllProducts = async (
         next(error)
     }
 }
+
+export const getProductById = async(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) :Promise<void> => {
+    try{
+        const { id } = productIdSchema.parse(req.params);
+        const productId = await getProductByIdService(id)
+
+             res.status(200).json({
+             message: "Product retrieved successfully",
+             data: productId })
+
+    } catch(error){
+        next(error)
+    }
+}
+

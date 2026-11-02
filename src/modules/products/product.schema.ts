@@ -21,5 +21,10 @@ export const paginationSchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(10)
 });
 
+export const productIdSchema = z.object({
+  id: z.string().uuid("Invalid product ID")
+})
+
 export type createProductInput = z.infer<typeof productSchema>
 export type paginationInput = z.infer<typeof paginationSchema>;
+export type productIdInput = z.infer<typeof productIdSchema>;
