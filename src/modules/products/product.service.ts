@@ -1,8 +1,10 @@
 import { prisma } from "../../config/db.js";
 import { AppError } from "../../shared/errors/AppError.js";
-
+import { Prisma } from "../../generated/prisma/client.js";
 import { type createProductInput,
-             type paginationInput
+         type paginationInput,
+         type updateProductInput
+
  } from "./product.schema.js";
 
 export const createProductService = async (
@@ -107,3 +109,39 @@ export const getProductByIdService = async (id: string) => {
 
     return product;
 }
+
+export const updateProductService = async (
+    id: string,
+    data: updateProductInput
+) => {
+    try {
+        const product = await prisma.product.update({
+            where: { id },
+            data
+        });
+
+        return product;
+
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+
+            if (error.code === "P2025") {
+                throw new AppError(
+                    "PRODUCT_NOT_FOUND",
+                    404,
+                    "Product not found"
+                );
+            }
+
+            if (error.code === "P2002") {
+                throw new AppError(
+                    "DUPLICATE_SLUG",
+                    409,
+                    "Slug already exists"
+                );
+            }
+        }
+
+        throw error;
+    }
+};

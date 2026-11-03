@@ -7,6 +7,8 @@ import { paginationSchema } from "./product.schema.js";
 import { productIdSchema } from "./product.schema.js";
 import { getProductByIdService } from "./product.service.js"
 import { getAllProductsService } from "./product.service.js";
+import { updateProductSchema } from "./product.schema.js";
+import { updateProductService } from "./product.service.js";
 
 export const createProduct = async (
     req: Request,
@@ -66,3 +68,21 @@ export const getProductById = async(
     }
 }
 
+export const updateProduct = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> => {
+    try {
+        const { id } = productIdSchema.parse(req.params);
+        const data = updateProductSchema.parse(req.body);
+        const product = await updateProductService(id, data);
+
+        res.status(200).json({
+          message: "Product updated successfully",
+          data: product
+});
+    } catch (error) {
+        next(error);
+    }
+};

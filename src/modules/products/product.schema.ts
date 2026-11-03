@@ -25,6 +25,11 @@ export const productIdSchema = z.object({
   id: z.string().uuid("Invalid product ID")
 })
 
+export const updateProductSchema = productSchema.omit({
+  variants: true
+}) .partial()
+
 export type createProductInput = z.infer<typeof productSchema>
 export type paginationInput = z.infer<typeof paginationSchema>;
 export type productIdInput = z.infer<typeof productIdSchema>;
+export type updateProductInput = z.infer<typeof updateProductSchema>;
