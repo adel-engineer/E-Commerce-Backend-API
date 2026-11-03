@@ -9,6 +9,7 @@ import { getProductByIdService } from "./product.service.js"
 import { getAllProductsService } from "./product.service.js";
 import { updateProductSchema } from "./product.schema.js";
 import { updateProductService } from "./product.service.js";
+import { deleteProductService } from "./product.service.js"
 
 export const createProduct = async (
     req: Request,
@@ -80,6 +81,25 @@ export const updateProduct = async (
 
         res.status(200).json({
           message: "Product updated successfully",
+          data: product
+});
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+export const deleteProduct = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> => {
+    try {
+        const { id } = productIdSchema.parse(req.params);
+        const product = await deleteProductService(id);
+
+        res.status(200).json({
+          message: "Product deleted successfully",
           data: product
 });
     } catch (error) {

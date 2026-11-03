@@ -88,9 +88,11 @@ export const getAllProductsService = async (
 }
 
 export const getProductByIdService = async (id: string) => {
-    const product = await prisma.product.findUnique({
+    const product = await prisma.product.findFirst({
         where: {
-            id:id
+            id:id,
+            isActive: true,
+            deletedAt: null
         },
         include: {
             category: true,
@@ -145,3 +147,28 @@ export const updateProductService = async (
         throw error;
     }
 };
+
+export const deleteProductService = async (id: string) => {
+    try{
+        const product = await prisma.product.update({
+            where: { id },
+            data: {
+                deletedAt: new Date(),
+                isActive: false
+            }
+        });
+        return product
+    }catch(error){
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+
+        if (error.code === "P2025") {
+            throw new AppError(
+                "PRODUCT_NOT_FOUND",
+                404,
+                "Product not found"
+            );
+        }
+    }
+    throw error;
+    }
+}
